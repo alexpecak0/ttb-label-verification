@@ -109,3 +109,5 @@ the two working panels only. Inputs, the upload area, and results rows retain
 opaque recessed-well styling, which preserves controls' contrast and avoids
 turning a long batch table into stacked glass layers. The application and verifier
 panels align in two columns at 900px and above and stack below that breakpoint.
+On wide desktop screens, the verifier panel expands beyond the fixed-width form so
+the detailed results table remains readable without compressing its columns.

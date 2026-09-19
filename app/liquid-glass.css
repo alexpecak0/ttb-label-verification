@@ -66,7 +66,7 @@ body {
 .s3 { width: 250px; height: 250px; border-radius: 50%; right: 16%; top: -40px; border: 34px solid #55e0c0; }
 .s4 { width: 220px; height: 96px; border-radius: 999px; left: 44%; top: 46%; background: linear-gradient(90deg, #ffd166, #ff9a5a); }
 
-.wrap { position: relative; z-index: 1; display: grid; gap: 20px; max-width: 1180px; margin: 0 auto; padding: clamp(14px, 3vw, 36px); }
+.wrap { position: relative; z-index: 1; display: grid; gap: 20px; max-width: 1640px; margin: 0 auto; padding: clamp(14px, 3vw, 36px); }
 .cols { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; gap: 20px; }
 
 .glass {
@@ -121,7 +121,7 @@ h2 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.025em; line-height:
 
 .results-wrap { margin-top: 22px; overflow-x: auto; }
 .results-head { margin: 0 4px 10px; color: var(--ink); font-size: 1.05rem; font-weight: 800; text-align: left; caption-side: top; }
-.results-table { width: 100%; border-collapse: separate; border-spacing: 0 10px; font-size: .9rem; }
+.results-table { width: 100%; min-width: 1040px; border-collapse: separate; border-spacing: 0 10px; font-size: .9rem; }
 .results-table th { padding: 0 14px 3px; color: var(--ink-2); font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
 .results-table td { padding: 12px 14px; vertical-align: top; background: var(--well); box-shadow: inset 0 2px 5px var(--well-shadow), inset 0 0 0 1px var(--well-ring), 0 1px 0 var(--well-lip); }
 .results-table td:first-child { border-radius: var(--radius-well) 0 0 var(--radius-well); }
@@ -132,6 +132,7 @@ h2 { font-size: 1.35rem; font-weight: 800; letter-spacing: -.025em; line-height:
 .chip.review, .chip.neutral { color: var(--review-fg); background: var(--review-bg); }
 .chip.fail { color: var(--fail-fg); background: var(--fail-bg); }
 
+@media (min-width: 1200px) { .cols { grid-template-columns: minmax(0, 540px) minmax(0, 1fr); } }
 @media (max-width: 900px) { .cols { grid-template-columns: 1fr; } }
 @media (max-width: 760px) { .brand p { display: none; } }
 @media (max-width: 520px) { :root { --radius-panel: 32px; --pad: 20px; } .fields { grid-template-columns: 1fr; } .bar { border-radius: 32px; } .results-table { font-size: .82rem; } }
