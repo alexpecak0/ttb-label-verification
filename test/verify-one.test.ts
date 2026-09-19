@@ -1,9 +1,22 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 
 import { GOVERNMENT_WARNING } from "../lib/constants";
 import { verifyOne } from "../lib/verify-one";
 import type { ApplicationData, LabelExtraction } from "../lib/types";
-import { VisionExtractionError } from "../lib/vision";
+import {
+  VisionExtractionError,
+  VisionServiceConfigurationError,
+} from "../lib/vision";
+
+const originalApiKey = process.env.ANTHROPIC_API_KEY;
+
+afterEach(() => {
+  if (originalApiKey === undefined) {
+    delete process.env.ANTHROPIC_API_KEY;
+  } else {
+    process.env.ANTHROPIC_API_KEY = originalApiKey;
+  }
+});
 
 const application: ApplicationData = {
   brandName: "Stone's Throw",
@@ -71,5 +84,13 @@ describe("verifyOne", () => {
         },
       ],
     });
+  });
+
+  it("propagates a missing API-key configuration error", async () => {
+    delete process.env.ANTHROPIC_API_KEY;
+
+    await expect(
+      verifyOne({ base64: "fixture", mimeType: "image/jpeg" }, application),
+    ).rejects.toBeInstanceOf(VisionServiceConfigurationError);
   });
 });

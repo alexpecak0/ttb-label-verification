@@ -48,6 +48,13 @@ export class VisionExtractionError extends Error {
   }
 }
 
+export class VisionServiceConfigurationError extends Error {
+  constructor() {
+    super("The label extraction service is not configured.");
+    this.name = "VisionServiceConfigurationError";
+  }
+}
+
 export function toLabelExtraction(input: VisionToolInput): LabelExtraction {
   return {
     brandName: input.brandName.value,
@@ -138,7 +145,7 @@ export async function extractLabel(
 ): Promise<LabelExtraction> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
-    throw new VisionExtractionError("The label extraction service is not configured.");
+    throw new VisionServiceConfigurationError();
   }
 
   const client = new Anthropic({ apiKey, maxRetries: 0 });

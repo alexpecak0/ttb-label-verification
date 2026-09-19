@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { verifyOne } from "../../../lib/verify-one";
+import { VisionServiceConfigurationError } from "../../../lib/vision";
 
 const MAX_BASE64_IMAGE_CHARACTERS = 4 * 1024 * 1024;
 
@@ -52,7 +53,17 @@ export async function POST(request: Request) {
   try {
     const output = await verifyOne(parsed.data.image, parsed.data.application);
     return Response.json(output);
-  } catch {
+  } catch (error) {
+    if (error instanceof VisionServiceConfigurationError) {
+      return Response.json(
+        {
+          error:
+            "Label extraction is temporarily unavailable. Please contact the app administrator.",
+        },
+        { status: 503 },
+      );
+    }
+
     return Response.json(
       {
         error:
