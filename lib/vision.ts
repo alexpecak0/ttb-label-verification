@@ -141,7 +141,7 @@ export async function extractLabel(
     throw new VisionExtractionError("The label extraction service is not configured.");
   }
 
-  const client = new Anthropic({ apiKey });
+  const client = new Anthropic({ apiKey, maxRetries: 0 });
   const response = await retryOnRateLimit(() => client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,

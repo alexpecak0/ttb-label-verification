@@ -1,9 +1,14 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const createMessage = vi.fn();
+const createdClientOptions = vi.fn();
 
 vi.mock("@anthropic-ai/sdk", () => ({
   default: class Anthropic {
+    constructor(options: unknown) {
+      createdClientOptions(options);
+    }
+
     messages = { create: createMessage };
   },
 }));
@@ -17,6 +22,7 @@ import {
 
 afterEach(() => {
   createMessage.mockReset();
+  createdClientOptions.mockReset();
   delete process.env.ANTHROPIC_API_KEY;
 });
 
@@ -61,5 +67,26 @@ describe("vision extraction schema", () => {
     await expect(
       extractLabel({ base64: "image", mimeType: "image/jpeg" }),
     ).rejects.toThrow("The extraction response was truncated. Please retry this label.");
+  });
+
+  it("disables SDK retries so rate-limit attempts are bounded by the app", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    createMessage.mockResolvedValue({
+      stop_reason: "end_turn",
+      content: [
+        {
+          type: "tool_use",
+          name: "record_label_extraction",
+          input: validToolInput,
+        },
+      ],
+    });
+
+    await extractLabel({ base64: "image", mimeType: "image/jpeg" });
+
+    expect(createdClientOptions).toHaveBeenCalledWith({
+      apiKey: "test-key",
+      maxRetries: 0,
+    });
   });
 });

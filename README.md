@@ -14,9 +14,8 @@ Requirements: Node.js 22+ and an Anthropic API key.
 ```bash
 git clone https://github.com/alexpecak0/ttb-label-verification.git
 cd ttb-label-verification
-git checkout main
 npm install
-Copy-Item .env.example .env.local
+cp .env.example .env.local
 ```
 
 Set `ANTHROPIC_API_KEY` in `.env.local`, then run:
@@ -26,6 +25,8 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Never commit `.env.local`.
+Reviewers can use the deployed prototype, which has the key configured server-side; a
+local run needs your own Anthropic key.
 
 ## Verify the project
 
@@ -71,6 +72,13 @@ by AI. That gives the title-case and all-bold warning cases exact, repeatable
 typography.
 
 Design and implementation decisions are recorded in [DECISIONS.md](DECISIONS.md).
+
+## Tools and AI assistance
+
+Built with Next.js, TypeScript, Zod, Vitest, Puppeteer (fixtures), and Vercel.
+I wrote the requirements and architecture decisions (SPEC.md, DECISIONS.md) and
+reviewed every change. OpenAI Codex generated most of the implementation from
+that spec.
 
 ## Assumptions and trade-offs
 
