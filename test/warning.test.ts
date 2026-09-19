@@ -30,6 +30,17 @@ describe("checkGovernmentWarning", () => {
     expect(checkGovernmentWarning(warning)[0]).toMatchObject({ status: "fail" });
   });
 
+  it("fails the caps sub-check when a confident transcription uses title case", () => {
+    const warning = compliantWarning();
+    warning.transcription.value = GOVERNMENT_WARNING.replace(
+      "GOVERNMENT WARNING:",
+      "Government Warning:",
+    );
+    warning.prefixIsUppercase.value = true;
+
+    expect(checkGovernmentWarning(warning)[1]).toMatchObject({ status: "fail" });
+  });
+
   it("sends an uncertain boldness observation to review", () => {
     const warning = compliantWarning();
     warning.prefixIsBold.confidence = 0.7;

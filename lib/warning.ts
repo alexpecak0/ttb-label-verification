@@ -32,6 +32,44 @@ function resultForBoolean(
   };
 }
 
+function checkPrefixUppercase(warning: WarningExtraction): FieldResult {
+  const reason = "The GOVERNMENT WARNING prefix must be uppercase.";
+  if (
+    warning.transcription.confidence < CONFIDENCE_THRESHOLD ||
+    warning.prefixIsUppercase.confidence < CONFIDENCE_THRESHOLD
+  ) {
+    return {
+      field: "governmentWarningPrefixUppercase",
+      check: "presence",
+      status: "review",
+      labelValue: warning.transcription.value,
+      applicationValue: true,
+      reason: `${reason} It could not be determined with sufficient confidence.`,
+    };
+  }
+
+  if (
+    warning.transcription.value !== null &&
+    !/^GOVERNMENT\s+WARNING\b/.test(collapseWhitespace(warning.transcription.value))
+  ) {
+    return {
+      field: "governmentWarningPrefixUppercase",
+      check: "presence",
+      status: "fail",
+      labelValue: warning.transcription.value,
+      applicationValue: true,
+      reason,
+    };
+  }
+
+  return resultForBoolean(
+    "governmentWarningPrefixUppercase",
+    warning.prefixIsUppercase,
+    true,
+    reason,
+  );
+}
+
 export function checkGovernmentWarning(
   warning: WarningExtraction,
 ): FieldResult[] {
@@ -61,12 +99,7 @@ export function checkGovernmentWarning(
 
   return [
     wording,
-    resultForBoolean(
-      "governmentWarningPrefixUppercase",
-      warning.prefixIsUppercase,
-      true,
-      "The GOVERNMENT WARNING prefix must be uppercase.",
-    ),
+    checkPrefixUppercase(warning),
     resultForBoolean(
       "governmentWarningPrefixBold",
       warning.prefixIsBold,

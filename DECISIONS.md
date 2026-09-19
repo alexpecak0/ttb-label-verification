@@ -25,3 +25,8 @@ serverless payload beneath Vercel’s body limit. The server makes one forced to
 call to Claude Haiku 4.5, validates the returned observations with Zod, and then passes
 only the validated extraction into the existing deterministic comparison layer. The
 provider key is read only at server request time.
+
+When warning text is transcribed with high confidence, the code corroborates the
+uppercase-prefix observation against that literal transcription. This prevents a
+model’s mistaken style observation from silently passing an obvious title-case prefix,
+while retaining separate confidence handling for typography observations.
