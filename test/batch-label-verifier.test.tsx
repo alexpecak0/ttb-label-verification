@@ -68,9 +68,21 @@ describe("BatchLabelVerifier", () => {
 
     expect(await screen.findByText("done")).toBeInTheDocument();
     expect(screen.getByText("running")).toBeInTheDocument();
+    expect(screen.getAllByText("✕")[0]).toHaveAttribute("aria-hidden", "true");
+    expect(screen.getAllByText("fail")[0]).toBeInTheDocument();
     expect(screen.getByText("Brand name differs.")).toBeInTheDocument();
     expect(screen.getByText("STONE'S THROW")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export CSV" })).toBeEnabled();
+  });
+
+  it("provides a keyboard-accessible drop zone", () => {
+    function Harness() {
+      const [items, setItems] = useState<BatchItem<VerificationResponse>[]>([]);
+      return <BatchLabelVerifier application={SAMPLE_APPLICATION} items={items} onItemsChange={setItems} />;
+    }
+
+    render(<Harness />);
+    expect(screen.getByRole("button", { name: "Drop label images here" })).toBeInTheDocument();
   });
 
   it("retries only a failed label", async () => {

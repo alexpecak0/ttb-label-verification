@@ -66,3 +66,11 @@ unparseable structured model response becomes a review result, never a pass or a
 crash. Claude rate limits receive up to three attempts with 250 ms then 500 ms delays;
 other provider failures remain isolated to their label and offer a per-row retry that
 does not restart the batch.
+
+## 2026-09-19 — Accessible one-screen status display
+
+Every batch progress and verification status is rendered as an icon plus its literal
+text, so color communicates emphasis rather than meaning. The drop zone is keyboard
+focusable and opens the native picker on Enter or Space, alongside its separate
+visible picker button. The app keeps native semantics and one screen rather than
+adding a navigation layer or modal workflow.

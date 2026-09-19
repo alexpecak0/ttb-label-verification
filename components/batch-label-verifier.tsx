@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import { createBatchItems, runBatch } from "../lib/batch";
@@ -10,6 +10,7 @@ import { validateLabelFiles } from "../lib/file-validation";
 import type { ApplicationData } from "../lib/types";
 import { verifyLabel } from "../lib/verify-client";
 import type { VerificationResponse } from "../lib/verify-client";
+import { StatusBadge } from "./status-badge";
 
 export type VerifyLabels = (
   file: File,
@@ -36,6 +37,7 @@ export function BatchLabelVerifier({
   onItemsChange,
   verify = verifyLabel,
 }: BatchLabelVerifierProps) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [selectionError, setSelectionError] = useState<string | null>(null);
   const files = items.map((item) => item.file);
@@ -44,6 +46,10 @@ export function BatchLabelVerifier({
     const validation = validateLabelFiles(Array.from(nextFiles));
     setSelectionError(validation.error);
     onItemsChange(createBatchItems<VerificationResponse>(validation.accepted));
+  }
+
+  function openFilePicker() {
+    fileInputRef.current?.click();
   }
 
   async function handleVerify() {
@@ -122,28 +128,39 @@ export function BatchLabelVerifier({
       <h2 className="text-xl font-semibold" id="batch-verifier-heading">
         Verify labels
       </h2>
-      <p className="mt-1 text-sm text-slate-600">
+      <p className="mt-1 text-slate-700">
         Add one or more JPEG or PNG label images, then verify them together.
       </p>
 
       <div
-        className="mt-4 rounded border-2 border-dashed border-slate-300 p-6 text-center"
+        aria-label="Drop label images here"
+        className="mt-4 rounded border-2 border-dashed border-slate-400 bg-slate-50 p-6 text-center"
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
           chooseFiles(event.dataTransfer.files);
         }}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openFilePicker();
+          }
+        }}
+        role="button"
+        tabIndex={0}
       >
         <p>Drop label images here</p>
-        <label className="mt-3 inline-block cursor-pointer rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white" htmlFor="label-images">
+        <button className="mt-3 rounded bg-slate-900 px-4 py-2 font-medium text-white" onClick={openFilePicker} type="button">
           Choose label images
-        </label>
+        </button>
+        <label className="sr-only" htmlFor="label-images">Choose label images</label>
         <input
           accept="image/jpeg,image/png"
           className="sr-only"
           id="label-images"
           multiple
           onChange={(event) => chooseFiles(event.target.files ?? [])}
+          ref={fileInputRef}
           type="file"
         />
       </div>
@@ -173,7 +190,7 @@ export function BatchLabelVerifier({
 
       {items.length > 0 ? (
         <div className="mt-6 overflow-x-auto">
-          <table className="w-full border-collapse text-left text-sm">
+          <table className="w-full border-collapse text-left">
             <caption className="mb-2 text-left font-semibold">Batch results</caption>
             <thead>
               <tr className="border-b border-slate-300">
@@ -194,15 +211,15 @@ export function BatchLabelVerifier({
                 const firstRow = (
                   <tr className="border-b border-slate-200" key={item.id}>
                     <td className="p-2">{item.file.name}</td>
-                    <td className="p-2">{item.progress}</td>
-                    <td className="p-2">{item.result?.result.overallStatus ?? "—"}</td>
+                    <td className="p-2"><StatusBadge status={item.progress} /></td>
+                    <td className="p-2">{item.result ? <StatusBadge status={item.result.result.overallStatus} /> : "—"}</td>
                     <td className="p-2">
                       {item.result
                         ? `${item.result.endToEndElapsedMs ?? item.result.elapsedMs} ms`
                         : "—"}
                     </td>
                     <td className="p-2">{fields[0]?.field ?? "—"}</td>
-                    <td className="p-2">{fields[0]?.status ?? "—"}</td>
+                    <td className="p-2">{fields[0] ? <StatusBadge status={fields[0].status} /> : "—"}</td>
                     <td className="p-2">{fields[0]?.reason ?? item.error ?? "—"}</td>
                     <td className="p-2">{displayValue(fields[0]?.labelValue ?? null)}</td>
                     <td className="p-2">{displayValue(fields[0]?.applicationValue ?? null)}</td>
@@ -215,7 +232,7 @@ export function BatchLabelVerifier({
                     <td className="p-2" />
                     <td className="p-2" />
                     <td className="p-2">{field.field}</td>
-                    <td className="p-2">{field.status}</td>
+                    <td className="p-2"><StatusBadge status={field.status} /></td>
                     <td className="p-2">{field.reason}</td>
                     <td className="p-2">{displayValue(field.labelValue)}</td>
                     <td className="p-2">{displayValue(field.applicationValue)}</td>
@@ -229,7 +246,7 @@ export function BatchLabelVerifier({
                     ? [
                         <tr className="border-b border-slate-200" key={`${item.id}-retry`}>
                           <td className="p-2" colSpan={9}>
-                            <button onClick={() => retryItem(item)} type="button">
+                            <button className="rounded border border-slate-700 px-4 py-2 font-medium" onClick={() => retryItem(item)} type="button">
                               Retry {item.file.name}
                             </button>
                           </td>
