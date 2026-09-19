@@ -74,3 +74,10 @@ text, so color communicates emphasis rather than meaning. The drop zone is keybo
 focusable and opens the native picker on Enter or Space, alongside its separate
 visible picker button. The app keeps native semantics and one screen rather than
 adding a navigation layer or modal workflow.
+
+## 2026-09-19 — Warning wording case normalization
+
+The warning wording check now folds letter case after collapsing layout whitespace.
+This validates the mandated words and order without imposing capitalization rules on
+the full statement; the prefix-uppercase check remains independently exact and
+case-sensitive, as required by 27 CFR 16.22(a)(2).

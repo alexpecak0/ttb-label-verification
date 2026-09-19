@@ -30,6 +30,13 @@ describe("checkGovernmentWarning", () => {
     expect(checkGovernmentWarning(warning)[0]).toMatchObject({ status: "fail" });
   });
 
+  it("accepts a fully capitalized transcription when every word is canonical", () => {
+    const warning = compliantWarning();
+    warning.transcription.value = GOVERNMENT_WARNING.toUpperCase();
+
+    expect(checkGovernmentWarning(warning)[0]).toMatchObject({ status: "pass" });
+  });
+
   it("fails the caps sub-check when a confident transcription uses title case", () => {
     const warning = compliantWarning();
     warning.transcription.value = GOVERNMENT_WARNING.replace(

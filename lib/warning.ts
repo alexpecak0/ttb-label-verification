@@ -89,12 +89,13 @@ export function checkGovernmentWarning(
           check: "presence",
           status:
             transcription.value !== null &&
-            collapseWhitespace(transcription.value) === GOVERNMENT_WARNING
+            collapseWhitespace(transcription.value).toUpperCase() ===
+              GOVERNMENT_WARNING.toUpperCase()
               ? "pass"
               : "fail",
           labelValue: transcription.value,
           applicationValue: GOVERNMENT_WARNING,
-          reason: "Warning wording must exactly match the canonical text, aside from layout whitespace.",
+          reason: "Warning wording must exactly match the canonical text, aside from letter case and layout whitespace.",
         };
 
   return [
