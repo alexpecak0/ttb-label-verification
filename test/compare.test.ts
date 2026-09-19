@@ -58,6 +58,13 @@ describe("compareLabel", () => {
     });
   });
 
+  it("rolls an unavailable field up to review", () => {
+    const label = compliantLabel();
+    label.brandName = null;
+
+    expect(compareLabel(label, application).overallStatus).toBe("review");
+  });
+
   it("sends a low-confidence brand mismatch to review", () => {
     const label = compliantLabel();
     label.brandName = "A different brand";

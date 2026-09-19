@@ -191,7 +191,7 @@ export function aggregateStatus(results: FieldResult[]): FieldStatus {
     return "fail";
   }
 
-  if (results.some(({ status }) => status === "review")) {
+  if (results.some(({ status }) => status === "review" || status === "not_provided")) {
     return "review";
   }
 
