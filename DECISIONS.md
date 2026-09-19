@@ -30,3 +30,11 @@ When warning text is transcribed with high confidence, the code corroborates the
 uppercase-prefix observation against that literal transcription. This prevents a
 model’s mistaken style observation from silently passing an obvious title-case prefix,
 while retaining separate confidence handling for typography observations.
+
+## 2026-09-18 — Production latency gate
+
+Five clean-fixture runs measured from clicking “Verify label” through rendering the
+result were 4,344 ms, 3,895 ms, 3,548 ms, 3,756 ms, and 3,570 ms. The median was
+3,756 ms, below the five-second target, so no image-size, prompt, or model change was
+needed at this gate. The UI retains both `endToEndElapsedMs` and the server-side
+`elapsedMs` for later performance diagnosis.
