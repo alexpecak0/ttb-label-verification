@@ -93,3 +93,11 @@ retaining hard fails for confident mismatches and missing imported-country prese
 Prepared JPEGs are capped at 3 MB in the browser and base64 input is capped again in
 the route, before any provider request. This keeps browser and server limits aligned
 with the Vercel body budget and limits accidental provider spend from oversized input.
+
+## 2026-09-19 — Glass presentation with accessibility fallback
+
+The decorative glass effect is restricted to the page header, application form, and
+verification/results container, leaving inputs, controls, and table rows opaque enough
+to preserve contrast. It uses a 24px backdrop blur, white border, and inset highlight
+over a fixed multicolor gradient. Browsers without backdrop-filter and users who opt
+to reduce transparency receive solid, high-contrast panel backgrounds.

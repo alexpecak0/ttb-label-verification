@@ -124,7 +124,7 @@ export function BatchLabelVerifier({
   }
 
   return (
-    <section aria-labelledby="batch-verifier-heading">
+    <section aria-labelledby="batch-verifier-heading" className="glass-panel p-6 sm:p-8">
       <h2 className="text-xl font-semibold" id="batch-verifier-heading">
         Verify labels
       </h2>
@@ -134,7 +134,7 @@ export function BatchLabelVerifier({
 
       <div
         aria-label="Drop label images here"
-        className="mt-4 rounded border-2 border-dashed border-slate-400 bg-slate-50 p-6 text-center"
+        className="mt-4 rounded-xl border-2 border-dashed border-slate-500 bg-white/70 p-6 text-center"
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
@@ -150,7 +150,7 @@ export function BatchLabelVerifier({
         tabIndex={0}
       >
         <p>Drop label images here</p>
-        <button className="mt-3 rounded bg-slate-900 px-4 py-2 font-medium text-white" onClick={openFilePicker} type="button">
+        <button className="mt-3 rounded-xl bg-slate-900 px-4 py-3 font-medium text-white hover:bg-slate-800" onClick={openFilePicker} type="button">
           Choose label images
         </button>
         <label className="sr-only" htmlFor="label-images">Choose label images</label>
@@ -172,7 +172,7 @@ export function BatchLabelVerifier({
       </p>
       {selectionError ? <p role="alert">{selectionError}</p> : null}
       <button
-        className="mt-3 rounded bg-blue-700 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
+        className="mt-3 rounded-xl bg-blue-800 px-4 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
         disabled={files.length === 0 || isVerifying}
         onClick={handleVerify}
         type="button"
@@ -180,7 +180,7 @@ export function BatchLabelVerifier({
         {isVerifying ? "Verifying labels…" : "Verify labels"}
       </button>
       <button
-        className="ml-3 rounded border border-slate-300 px-4 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-60"
+        className="ml-3 rounded-xl border border-slate-700 bg-white/80 px-4 py-3 font-medium text-slate-950 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
         disabled={!items.some((item) => item.progress === "done")}
         onClick={handleExport}
         type="button"
@@ -189,11 +189,11 @@ export function BatchLabelVerifier({
       </button>
 
       {items.length > 0 ? (
-        <div className="mt-6 overflow-x-auto">
+        <div className="mt-6 overflow-x-auto rounded-xl border border-white/70 bg-white/50">
           <table className="w-full border-collapse text-left">
             <caption className="mb-2 text-left font-semibold">Batch results</caption>
             <thead>
-              <tr className="border-b border-slate-300">
+              <tr className="border-b border-slate-400">
                 <th className="p-2">File</th>
                 <th className="p-2">Progress</th>
                 <th className="p-2">Overall status</th>
@@ -209,7 +209,7 @@ export function BatchLabelVerifier({
               {items.flatMap((item) => {
                 const fields = item.result?.result.fields ?? [];
                 const firstRow = (
-                  <tr className="border-b border-slate-200" key={item.id}>
+                  <tr className="border-b border-slate-300" key={item.id}>
                     <td className="p-2">{item.file.name}</td>
                     <td className="p-2"><StatusBadge status={item.progress} /></td>
                     <td className="p-2">{item.result ? <StatusBadge status={item.result.result.overallStatus} /> : "—"}</td>
@@ -226,7 +226,7 @@ export function BatchLabelVerifier({
                   </tr>
                 );
                 const remainingRows = fields.slice(1).map((field) => (
-                  <tr className="border-b border-slate-200" key={`${item.id}-${field.field}`}>
+                  <tr className="border-b border-slate-300" key={`${item.id}-${field.field}`}>
                     <td className="p-2" />
                     <td className="p-2" />
                     <td className="p-2" />
@@ -244,9 +244,9 @@ export function BatchLabelVerifier({
                   ...remainingRows,
                   ...(item.progress === "failed"
                     ? [
-                        <tr className="border-b border-slate-200" key={`${item.id}-retry`}>
+                        <tr className="border-b border-slate-300" key={`${item.id}-retry`}>
                           <td className="p-2" colSpan={9}>
-                            <button className="rounded border border-slate-700 px-4 py-2 font-medium" onClick={() => retryItem(item)} type="button">
+                            <button className="rounded-xl border border-slate-700 bg-white/80 px-4 py-3 font-medium text-slate-950 hover:bg-white" onClick={() => retryItem(item)} type="button">
                               Retry {item.file.name}
                             </button>
                           </td>

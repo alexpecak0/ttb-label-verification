@@ -38,7 +38,7 @@ export function ApplicationForm({
   }
 
   return (
-    <section aria-labelledby="application-details-heading">
+    <section aria-labelledby="application-details-heading" className="glass-panel p-6 sm:p-8">
       <div className="flex items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-semibold" id="application-details-heading">
@@ -49,7 +49,7 @@ export function ApplicationForm({
           </p>
         </div>
         <button
-          className="rounded border border-slate-700 px-4 py-3 font-medium hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-xl border border-slate-700 bg-white/80 px-4 py-3 font-medium text-slate-950 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
           disabled={isLoadingSample}
           onClick={onLoadSample}
           type="button"
@@ -65,7 +65,7 @@ export function ApplicationForm({
               {field.label}
             </label>
             <input
-              className="mt-1 w-full rounded border border-slate-700 px-3 py-3"
+              className="glass-input mt-1 w-full rounded-xl border px-3 py-3 text-slate-950"
               id={field.key}
               onChange={(event) => updateTextField(field.key, event.target.value)}
               required={field.key === "countryOfOrigin" && value.isImported}
