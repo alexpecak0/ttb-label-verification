@@ -2,13 +2,11 @@
 
 import { useState } from "react";
 
-import { prepareImage } from "../lib/downscale";
-import type { ApplicationData, LabelResult } from "../lib/types";
+import { verifyLabel } from "../lib/verify-client";
+import type { VerificationResponse } from "../lib/verify-client";
+import type { ApplicationData } from "../lib/types";
 
-export interface VerificationResponse {
-  elapsedMs: number;
-  result: LabelResult;
-}
+export type { VerificationResponse } from "../lib/verify-client";
 
 interface DisplayedVerificationResponse extends VerificationResponse {
   endToEndElapsedMs: number;
@@ -19,37 +17,11 @@ export type VerifyLabel = (
   application: ApplicationData,
 ) => Promise<VerificationResponse>;
 
-async function verifySelectedFile(
-  file: File,
-  application: ApplicationData,
-): Promise<VerificationResponse> {
-  const image = await prepareImage(file);
-  const response = await fetch("/api/verify", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ image, application }),
-  });
-
-  const body: unknown = await response.json();
-  if (!response.ok) {
-    const message =
-      typeof body === "object" &&
-      body !== null &&
-      "error" in body &&
-      typeof body.error === "string"
-        ? body.error
-        : "We could not verify this label. Please try again.";
-    throw new Error(message);
-  }
-
-  return body as VerificationResponse;
-}
-
 export function SingleLabelVerifier({
   application,
   file,
   onFileChange,
-  verify = verifySelectedFile,
+  verify = verifyLabel,
 }: {
   application: ApplicationData;
   file: File | null;
