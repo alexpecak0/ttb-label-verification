@@ -55,6 +55,13 @@ describe("checkGovernmentWarning", () => {
     expect(checkGovernmentWarning(warning)[2]).toMatchObject({ status: "review" });
   });
 
+  it("sends an unavailable boldness observation to review", () => {
+    const warning = compliantWarning();
+    warning.prefixIsBold.value = null;
+
+    expect(checkGovernmentWarning(warning)[2]).toMatchObject({ status: "review" });
+  });
+
   it("fails when the entire warning is confidently observed as bold", () => {
     const warning = compliantWarning();
     warning.remainderIsBold.value = true;

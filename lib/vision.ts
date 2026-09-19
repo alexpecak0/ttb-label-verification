@@ -171,6 +171,12 @@ export async function extractLabel(
     ],
   }));
 
+  if (response.stop_reason === "max_tokens") {
+    throw new VisionExtractionError(
+      "The extraction response was truncated. Please retry this label.",
+    );
+  }
+
   const toolUse = response.content.find(
     (block) => block.type === "tool_use" && block.name === LABEL_EXTRACTION_TOOL_NAME,
   );

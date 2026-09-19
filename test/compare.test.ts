@@ -58,6 +58,25 @@ describe("compareLabel", () => {
     });
   });
 
+  it("sends a low-confidence brand mismatch to review", () => {
+    const label = compliantLabel();
+    label.brandName = "A different brand";
+    label.fieldConfidence.brandName = 0.7;
+
+    expect(compareLabel(label, application).fields[0]).toMatchObject({
+      status: "review",
+    });
+  });
+
+  it("sends unparseable net contents to review", () => {
+    const label = compliantLabel();
+    label.netContents = "70 cl";
+
+    expect(
+      compareLabel(label, application).fields.find(({ field }) => field === "netContents"),
+    ).toMatchObject({ status: "review" });
+  });
+
   it("requires country of origin for imported products", () => {
     const importedApplication = { ...application, isImported: true };
 

@@ -1,10 +1,24 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const createMessage = vi.fn();
+
+vi.mock("@anthropic-ai/sdk", () => ({
+  default: class Anthropic {
+    messages = { create: createMessage };
+  },
+}));
 
 import { GOVERNMENT_WARNING } from "../lib/constants";
 import {
+  extractLabel,
   VisionToolInputSchema,
   toLabelExtraction,
 } from "../lib/vision";
+
+afterEach(() => {
+  createMessage.mockReset();
+  delete process.env.ANTHROPIC_API_KEY;
+});
 
 const validToolInput = {
   brandName: { value: "STONE'S THROW", confidence: 0.99 },
@@ -38,5 +52,14 @@ describe("vision extraction schema", () => {
       value: true,
       confidence: 0.99,
     });
+  });
+
+  it("reports provider truncation distinctly from an invalid structured result", async () => {
+    process.env.ANTHROPIC_API_KEY = "test-key";
+    createMessage.mockResolvedValue({ stop_reason: "max_tokens", content: [] });
+
+    await expect(
+      extractLabel({ base64: "image", mimeType: "image/jpeg" }),
+    ).rejects.toThrow("The extraction response was truncated. Please retry this label.");
   });
 });

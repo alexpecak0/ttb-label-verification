@@ -2,7 +2,8 @@ const MILLILITERS_PER_US_FLUID_OUNCE = 29.5735295625;
 
 export interface ParsedNetContents {
   milliliters: number;
-  toleranceMilliliters: number;
+  system: "metric" | "us";
+  roundingMilliliters: number;
 }
 
 export function parseNetContents(
@@ -31,21 +32,24 @@ export function parseNetContents(
   if (unit === "ml" || unit === "milliliter" || unit === "milliliters") {
     return {
       milliliters: amount,
-      toleranceMilliliters: displayedIncrement / 2,
+      system: "metric",
+      roundingMilliliters: 0,
     };
   }
 
   if (unit === "l" || unit === "liter" || unit === "liters") {
     return {
       milliliters: amount * 1000,
-      toleranceMilliliters: (displayedIncrement * 1000) / 2,
+      system: "metric",
+      roundingMilliliters: 0,
     };
   }
 
   if (unit === "floz" || unit === "fl.oz" || unit === "oz") {
     return {
       milliliters: amount * MILLILITERS_PER_US_FLUID_OUNCE,
-      toleranceMilliliters:
+      system: "us",
+      roundingMilliliters:
         (displayedIncrement * MILLILITERS_PER_US_FLUID_OUNCE) / 2,
     };
   }
@@ -66,7 +70,9 @@ export function areNetContentsEquivalent(
 
   const difference = Math.abs(firstParsed.milliliters - secondParsed.milliliters);
   const allowedDifference =
-    firstParsed.toleranceMilliliters + secondParsed.toleranceMilliliters;
+    firstParsed.system === secondParsed.system
+      ? 1e-6
+      : Math.max(firstParsed.roundingMilliliters, secondParsed.roundingMilliliters);
 
   return difference <= allowedDifference;
 }

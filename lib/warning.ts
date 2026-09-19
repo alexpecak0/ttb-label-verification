@@ -11,7 +11,7 @@ function resultForBoolean(
   expected: boolean,
   reason: string,
 ): FieldResult {
-  if (observation.confidence < CONFIDENCE_THRESHOLD) {
+  if (observation.value === null || observation.confidence < CONFIDENCE_THRESHOLD) {
     return {
       field,
       check: "presence",

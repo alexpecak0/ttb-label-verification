@@ -1,6 +1,7 @@
+import { CONFIDENCE_THRESHOLD } from "./constants";
 import { normalizeText } from "./normalize";
 import { parseAbvPercent } from "./parseAbv";
-import { areNetContentsEquivalent } from "./parseNetContents";
+import { areNetContentsEquivalent, parseNetContents } from "./parseNetContents";
 import { checkGovernmentWarning } from "./warning";
 import type {
   ApplicationData,
@@ -14,6 +15,7 @@ function compareText(
   field: string,
   labelValue: string | null,
   applicationValue: string | null,
+  confidence: number,
 ): FieldResult {
   if (labelValue === null || applicationValue === null) {
     return {
@@ -23,6 +25,17 @@ function compareText(
       labelValue,
       applicationValue,
       reason: "A label or application value was not provided.",
+    };
+  }
+
+  if (confidence < CONFIDENCE_THRESHOLD) {
+    return {
+      field,
+      check: "match",
+      status: "review",
+      labelValue,
+      applicationValue,
+      reason: "The label value could not be read with sufficient confidence.",
     };
   }
 
@@ -42,6 +55,7 @@ function compareText(
 function compareAbv(
   labelValue: string | null,
   applicationValue: string | null,
+  confidence: number,
 ): FieldResult {
   if (labelValue === null || applicationValue === null) {
     return {
@@ -67,6 +81,17 @@ function compareAbv(
     };
   }
 
+  if (confidence < CONFIDENCE_THRESHOLD) {
+    return {
+      field: "abv",
+      check: "match",
+      status: "review",
+      labelValue,
+      applicationValue,
+      reason: "The label ABV could not be read with sufficient confidence.",
+    };
+  }
+
   return {
     field: "abv",
     check: "match",
@@ -80,6 +105,7 @@ function compareAbv(
 function compareNetContents(
   labelValue: string | null,
   applicationValue: string | null,
+  confidence: number,
 ): FieldResult {
   if (labelValue === null || applicationValue === null) {
     return {
@@ -89,6 +115,31 @@ function compareNetContents(
       labelValue,
       applicationValue,
       reason: "A label or application net contents value was not provided.",
+    };
+  }
+
+  if (
+    parseNetContents(labelValue) === null ||
+    parseNetContents(applicationValue) === null
+  ) {
+    return {
+      field: "netContents",
+      check: "match",
+      status: "review",
+      labelValue,
+      applicationValue,
+      reason: "Net contents could not be parsed from one of the provided values.",
+    };
+  }
+
+  if (confidence < CONFIDENCE_THRESHOLD) {
+    return {
+      field: "netContents",
+      check: "match",
+      status: "review",
+      labelValue,
+      applicationValue,
+      reason: "The label net contents could not be read with sufficient confidence.",
     };
   }
 
@@ -105,6 +156,7 @@ function compareNetContents(
 function checkCountryOfOrigin(
   labelValue: string | null,
   application: ApplicationData,
+  confidence: number,
 ): FieldResult {
   if (!application.isImported) {
     return {
@@ -121,23 +173,18 @@ function checkCountryOfOrigin(
     return {
       field: "countryOfOrigin",
       check: "presence",
-      status: "fail",
+      status: confidence < CONFIDENCE_THRESHOLD ? "review" : "fail",
       labelValue,
       applicationValue: application.countryOfOrigin,
-      reason: "Imported products require country of origin on the label.",
+      reason:
+        confidence < CONFIDENCE_THRESHOLD
+          ? "Country of origin could not be read with sufficient confidence."
+          : "Imported products require country of origin on the label.",
     };
   }
 
-  return compareText("countryOfOrigin", labelValue, application.countryOfOrigin);
+  return compareText("countryOfOrigin", labelValue, application.countryOfOrigin, confidence);
 }
-
-const STATUS_RANK: Record<FieldStatus, number> = {
-  pass: 0,
-  not_applicable: 0,
-  not_provided: 0,
-  review: 1,
-  fail: 2,
-};
 
 export function aggregateStatus(results: FieldResult[]): FieldStatus {
   if (results.some(({ status }) => status === "fail")) {
@@ -148,11 +195,7 @@ export function aggregateStatus(results: FieldResult[]): FieldStatus {
     return "review";
   }
 
-  return results.reduce<FieldStatus>(
-    (worst, result) =>
-      STATUS_RANK[result.status] > STATUS_RANK[worst] ? result.status : worst,
-    "pass",
-  );
+  return "pass";
 }
 
 export function compareLabel(
@@ -160,16 +203,17 @@ export function compareLabel(
   application: ApplicationData,
 ): LabelResult {
   const fields = [
-    compareText("brandName", label.brandName, application.brandName),
-    compareText("classType", label.classType, application.classType),
+    compareText("brandName", label.brandName, application.brandName, label.fieldConfidence.brandName),
+    compareText("classType", label.classType, application.classType, label.fieldConfidence.classType),
     compareText(
       "producerBottler",
       label.producerBottler,
       application.producerBottler,
+      label.fieldConfidence.producerBottler,
     ),
-    checkCountryOfOrigin(label.countryOfOrigin, application),
-    compareAbv(label.abv, application.abv),
-    compareNetContents(label.netContents, application.netContents),
+    checkCountryOfOrigin(label.countryOfOrigin, application, label.fieldConfidence.countryOfOrigin),
+    compareAbv(label.abv, application.abv, label.fieldConfidence.abv),
+    compareNetContents(label.netContents, application.netContents, label.fieldConfidence.netContents),
     ...checkGovernmentWarning(label.governmentWarning),
   ];
 

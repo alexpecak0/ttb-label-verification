@@ -81,3 +81,15 @@ The warning wording check now folds letter case after collapsing layout whitespa
 This validates the mandated words and order without imposing capitalization rules on
 the full statement; the prefix-uppercase check remains independently exact and
 case-sensitive, as required by 27 CFR 16.22(a)(2).
+
+## 2026-09-19 — Conservative comparison recovery
+
+Metric net-contents values now compare as exact milliliters; only metric-versus-US
+fluid-ounce comparisons receive display-rounding tolerance. Low-confidence ordinary
+field reads, unavailable boolean style observations, and unparseable non-null ABV or
+net-content values resolve to review. This reduces false regulatory findings while
+retaining hard fails for confident mismatches and missing imported-country presence.
+
+Prepared JPEGs are capped at 3 MB in the browser and base64 input is capped again in
+the route, before any provider request. This keeps browser and server limits aligned
+with the Vercel body budget and limits accidental provider spend from oversized input.

@@ -2,11 +2,13 @@ import { z } from "zod";
 
 import { verifyOne } from "../../../lib/verify-one";
 
+const MAX_BASE64_IMAGE_CHARACTERS = 4 * 1024 * 1024;
+
 export const runtime = "nodejs";
 
 const verifyRequestSchema = z.object({
   image: z.object({
-    base64: z.string().min(1),
+    base64: z.string().min(1).max(MAX_BASE64_IMAGE_CHARACTERS),
     mimeType: z.enum(["image/jpeg", "image/png"]),
     fileName: z.string().min(1).max(255).optional(),
   }),
@@ -34,9 +36,16 @@ export async function POST(request: Request) {
 
   const parsed = verifyRequestSchema.safeParse(body);
   if (!parsed.success) {
+    const hasOversizedImage = parsed.error.issues.some(
+      (issue) => issue.path.join(".") === "image.base64" && issue.code === "too_big",
+    );
     return Response.json(
-      { error: "Provide one prepared label image and its application details." },
-      { status: 400 },
+      {
+        error: hasOversizedImage
+          ? "Choose a smaller or more tightly cropped image before verifying."
+          : "Provide one prepared label image and its application details.",
+      },
+      { status: hasOversizedImage ? 413 : 400 },
     );
   }
 
