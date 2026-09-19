@@ -163,7 +163,7 @@ export async function extractLabel(
           {
             type: "text",
             text:
-              "Transcribe and observe this alcohol-label image. The warning transcription must be a literal visual reading, including lower- versus uppercase letters and every punctuation mark; do not apply normal English capitalization. Independently observe whether the first two warning words are uppercase, whether those words are bold, and whether the rest of the warning appears bold. Use null when a value is not visible; do not assess legal compliance.",
+              "Transcribe and observe this alcohol-label image. The warning transcription must be a literal visual reading, including lower- versus uppercase letters and every punctuation mark; do not apply normal English capitalization. Independently inspect font weight in the warning: report whether the first two words are bold and, separately, whether any of the remaining warning text appears bold. Do not infer the remainder style from the prefix; assess its visible weight directly. Use null when a value is not visible; do not assess legal compliance.",
           },
         ],
       },
