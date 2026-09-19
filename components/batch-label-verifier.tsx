@@ -43,12 +43,20 @@ export function BatchLabelVerifier({
   const files = items.map((item) => item.file);
 
   function chooseFiles(nextFiles: FileList | File[]) {
+    if (isVerifying) {
+      return;
+    }
+
     const validation = validateLabelFiles(Array.from(nextFiles));
     setSelectionError(validation.error);
     onItemsChange(createBatchItems<VerificationResponse>(validation.accepted));
   }
 
   function openFilePicker() {
+    if (isVerifying) {
+      return;
+    }
+
     fileInputRef.current?.click();
   }
 
@@ -141,22 +149,33 @@ export function BatchLabelVerifier({
           chooseFiles(event.dataTransfer.files);
         }}
         onKeyDown={(event) => {
+          if (isVerifying) {
+            return;
+          }
+
           if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             openFilePicker();
           }
         }}
+        aria-disabled={isVerifying}
         role="button"
-        tabIndex={0}
+        tabIndex={isVerifying ? -1 : 0}
       >
         <p>Drop label images here</p>
-        <button className="btn" onClick={openFilePicker} type="button">
+        <button
+          className="btn"
+          disabled={isVerifying}
+          onClick={openFilePicker}
+          type="button"
+        >
           Choose label images
         </button>
         <label className="sr-only" htmlFor="label-images">Choose label images</label>
         <input
           accept="image/jpeg,image/png"
           className="sr-only"
+          disabled={isVerifying}
           id="label-images"
           multiple
           onChange={(event) => chooseFiles(event.target.files ?? [])}

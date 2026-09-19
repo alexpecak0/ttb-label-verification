@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import "@testing-library/jest-dom/vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -110,5 +110,42 @@ describe("BatchLabelVerifier", () => {
     await user.click(screen.getByRole("button", { name: "Retry retry.png" }));
     expect(await screen.findByText("done")).toBeInTheDocument();
     expect(verify).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps the selected files locked while a batch is running", async () => {
+    const user = userEvent.setup();
+    const pending = deferred<VerificationResponse>();
+
+    function Harness() {
+      const [items, setItems] = useState<BatchItem<VerificationResponse>[]>([]);
+      return (
+        <BatchLabelVerifier
+          application={SAMPLE_APPLICATION}
+          items={items}
+          onItemsChange={setItems}
+          verify={() => pending.promise}
+        />
+      );
+    }
+
+    render(<Harness />);
+    const original = new File(["one"], "original.png", { type: "image/png" });
+    const replacement = new File(["two"], "replacement.png", { type: "image/png" });
+    const picker = screen.getByLabelText("Choose label images");
+    const dropZone = screen.getByRole("button", { name: "Drop label images here" });
+
+    await user.upload(picker, original);
+    await user.click(screen.getByRole("button", { name: "Verify labels" }));
+
+    expect(picker).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Choose label images" })).toBeDisabled();
+    expect(dropZone).toHaveAttribute("aria-disabled", "true");
+
+    fireEvent.drop(dropZone, { dataTransfer: { files: [replacement] } });
+    expect(screen.getByText("original.png")).toBeInTheDocument();
+    expect(screen.queryByText("replacement.png")).not.toBeInTheDocument();
+
+    pending.resolve({ elapsedMs: 100, result: { overallStatus: "pass", fields: [] } });
+    expect(await screen.findByText("done")).toBeInTheDocument();
   });
 });
