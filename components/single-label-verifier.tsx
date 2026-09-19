@@ -14,24 +14,20 @@ interface DisplayedVerificationResponse extends VerificationResponse {
   endToEndElapsedMs: number;
 }
 
-export type VerifyLabel = (file: File) => Promise<VerificationResponse>;
+export type VerifyLabel = (
+  file: File,
+  application: ApplicationData,
+) => Promise<VerificationResponse>;
 
-const SAMPLE_APPLICATION: ApplicationData = {
-  brandName: "Stone's Throw",
-  classType: "Kentucky Straight Bourbon Whiskey",
-  producerBottler: "Stone's Throw Distilling & Co., Frankfort, Kentucky",
-  countryOfOrigin: "United States",
-  abv: "45% Alc./Vol.",
-  netContents: "750 mL",
-  isImported: false,
-};
-
-async function verifySelectedFile(file: File): Promise<VerificationResponse> {
+async function verifySelectedFile(
+  file: File,
+  application: ApplicationData,
+): Promise<VerificationResponse> {
   const image = await prepareImage(file);
   const response = await fetch("/api/verify", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ image, application: SAMPLE_APPLICATION }),
+    body: JSON.stringify({ image, application }),
   });
 
   const body: unknown = await response.json();
@@ -50,11 +46,16 @@ async function verifySelectedFile(file: File): Promise<VerificationResponse> {
 }
 
 export function SingleLabelVerifier({
+  application,
+  file,
+  onFileChange,
   verify = verifySelectedFile,
 }: {
+  application: ApplicationData;
+  file: File | null;
+  onFileChange: (file: File | null) => void;
   verify?: VerifyLabel;
 }) {
-  const [file, setFile] = useState<File | null>(null);
   const [response, setResponse] = useState<DisplayedVerificationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
@@ -69,7 +70,7 @@ export function SingleLabelVerifier({
     setResponse(null);
     try {
       const startedAt = performance.now();
-      const output = await verify(file);
+      const output = await verify(file, application);
       setResponse({
         ...output,
         endToEndElapsedMs: Math.round(performance.now() - startedAt),
@@ -88,14 +89,15 @@ export function SingleLabelVerifier({
   return (
     <section>
       <h2>Verify one label</h2>
-      <p>This phase uses the bundled sample application details.</p>
+      <p>Choose a JPEG or PNG label image to compare against these application details.</p>
       <label htmlFor="label-image">Choose label image</label>
       <input
         accept="image/jpeg,image/png"
         id="label-image"
-        onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+        onChange={(event) => onFileChange(event.target.files?.[0] ?? null)}
         type="file"
       />
+      {file ? <p>{file.name}</p> : null}
       <button disabled={!file || isVerifying} onClick={handleVerify} type="button">
         {isVerifying ? "Verifying…" : "Verify label"}
       </button>

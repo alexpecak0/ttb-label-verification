@@ -38,3 +38,12 @@ result were 4,344 ms, 3,895 ms, 3,548 ms, 3,756 ms, and 3,570 ms. The median was
 3,756 ms, below the five-second target, so no image-size, prompt, or model change was
 needed at this gate. The UI retains both `endToEndElapsedMs` and the server-side
 `elapsedMs` for later performance diagnosis.
+
+## 2026-09-18 — Editable application data
+
+The single-label request now receives the values entered on the page rather than a
+component-owned hardcoded application. “Load sample” deliberately follows that same
+path: it fills the editable Stone's Throw application values and attaches the bundled
+sample image before verification. Country of origin becomes a required browser field
+only when the user marks the product as imported; no beverage-type selector is
+included.

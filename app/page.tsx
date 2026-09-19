@@ -1,4 +1,4 @@
-import { SingleLabelVerifier } from "@/components/single-label-verifier";
+import { LabelVerificationApp } from "@/components/label-verification-app";
 
 export default function Home() {
   return (
@@ -11,7 +11,7 @@ export default function Home() {
           A prototype for reviewing alcohol-label application details.
         </p>
         <div className="mt-8 text-left">
-          <SingleLabelVerifier />
+          <LabelVerificationApp />
         </div>
       </div>
     </main>
