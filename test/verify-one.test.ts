@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { GOVERNMENT_WARNING } from "../lib/constants";
 import { verifyOne } from "../lib/verify-one";
 import type { ApplicationData, LabelExtraction } from "../lib/types";
+import { VisionExtractionError } from "../lib/vision";
 
 const application: ApplicationData = {
   brandName: "Stone's Throw",
@@ -47,5 +48,28 @@ describe("verifyOne", () => {
 
     expect(output.result.overallStatus).toBe("pass");
     expect(output.elapsedMs).toBeGreaterThanOrEqual(0);
+  });
+
+  it("returns a review result when structured extraction is malformed", async () => {
+    const output = await verifyOne(
+      { base64: "fixture", mimeType: "image/jpeg" },
+      application,
+      {
+        extractLabel: async () => {
+          throw new VisionExtractionError("The extraction service returned an invalid label result.");
+        },
+      },
+    );
+
+    expect(output.result).toMatchObject({
+      overallStatus: "review",
+      fields: [
+        {
+          field: "Label extraction",
+          status: "review",
+          reason: "We could not reliably read this label. Please review the image manually or upload a clearer image.",
+        },
+      ],
+    });
   });
 });

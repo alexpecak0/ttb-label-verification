@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import type { Tool } from "@anthropic-ai/sdk/resources/messages/messages";
 import { z } from "zod";
 
+import { retryOnRateLimit } from "./retry";
 import type { LabelExtraction } from "./types";
 
 const confidence = z.number().min(0).max(1);
@@ -141,7 +142,7 @@ export async function extractLabel(
   }
 
   const client = new Anthropic({ apiKey });
-  const response = await client.messages.create({
+  const response = await retryOnRateLimit(() => client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,
     system:
@@ -168,7 +169,7 @@ export async function extractLabel(
         ],
       },
     ],
-  });
+  }));
 
   const toolUse = response.content.find(
     (block) => block.type === "tool_use" && block.name === LABEL_EXTRACTION_TOOL_NAME,

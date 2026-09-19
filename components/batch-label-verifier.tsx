@@ -6,6 +6,7 @@ import type { Dispatch, SetStateAction } from "react";
 import { createBatchItems, runBatch } from "../lib/batch";
 import type { BatchItem } from "../lib/batch";
 import { createBatchCsv } from "../lib/export-csv";
+import { validateLabelFiles } from "../lib/file-validation";
 import type { ApplicationData } from "../lib/types";
 import { verifyLabel } from "../lib/verify-client";
 import type { VerificationResponse } from "../lib/verify-client";
@@ -36,10 +37,13 @@ export function BatchLabelVerifier({
   verify = verifyLabel,
 }: BatchLabelVerifierProps) {
   const [isVerifying, setIsVerifying] = useState(false);
+  const [selectionError, setSelectionError] = useState<string | null>(null);
   const files = items.map((item) => item.file);
 
   function chooseFiles(nextFiles: FileList | File[]) {
-    onItemsChange(createBatchItems<VerificationResponse>(Array.from(nextFiles)));
+    const validation = validateLabelFiles(Array.from(nextFiles));
+    setSelectionError(validation.error);
+    onItemsChange(createBatchItems<VerificationResponse>(validation.accepted));
   }
 
   async function handleVerify() {
@@ -48,7 +52,9 @@ export function BatchLabelVerifier({
     }
 
     setIsVerifying(true);
-    onItemsChange(createBatchItems<VerificationResponse>(files));
+    onItemsChange((previousItems) =>
+      createBatchItems<VerificationResponse>(previousItems.map((item) => item.file)),
+    );
     await runBatch(
       files,
       async (file) => {
@@ -68,6 +74,36 @@ export function BatchLabelVerifier({
       },
     );
     setIsVerifying(false);
+  }
+
+  async function retryItem(item: BatchItem<VerificationResponse>) {
+    onItemsChange((previousItems) =>
+      previousItems.map((currentItem) =>
+        currentItem.id === item.id
+          ? { ...currentItem, progress: "running", error: undefined, result: undefined }
+          : currentItem,
+      ),
+    );
+
+    try {
+      const startedAt = performance.now();
+      const result = await verify(item.file, application);
+      onItemsChange((previousItems) =>
+        previousItems.map((currentItem) =>
+          currentItem.id === item.id
+            ? { ...currentItem, progress: "done", result: { ...result, endToEndElapsedMs: Math.round(performance.now() - startedAt) } }
+            : currentItem,
+        ),
+      );
+    } catch (error) {
+      onItemsChange((previousItems) =>
+        previousItems.map((currentItem) =>
+          currentItem.id === item.id
+            ? { ...currentItem, progress: "failed", error: error instanceof Error ? error.message : "We could not verify this label. Please try again." }
+            : currentItem,
+        ),
+      );
+    }
   }
 
   function handleExport() {
@@ -117,6 +153,7 @@ export function BatchLabelVerifier({
           ? "No label images selected."
           : `${files.length} label image${files.length === 1 ? "" : "s"} selected.`}
       </p>
+      {selectionError ? <p role="alert">{selectionError}</p> : null}
       <button
         className="mt-3 rounded bg-blue-700 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
         disabled={files.length === 0 || isVerifying}
@@ -185,7 +222,21 @@ export function BatchLabelVerifier({
                   </tr>
                 ));
 
-                return [firstRow, ...remainingRows];
+                return [
+                  firstRow,
+                  ...remainingRows,
+                  ...(item.progress === "failed"
+                    ? [
+                        <tr className="border-b border-slate-200" key={`${item.id}-retry`}>
+                          <td className="p-2" colSpan={9}>
+                            <button onClick={() => retryItem(item)} type="button">
+                              Retry {item.file.name}
+                            </button>
+                          </td>
+                        </tr>,
+                      ]
+                    : []),
+                ];
               })}
             </tbody>
           </table>

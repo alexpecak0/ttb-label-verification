@@ -57,3 +57,12 @@ act on completed results before the batch ends. At the measured 3.756-second med
 300 labels form 60 groups of five and take approximately 3.8 minutes of wall-clock
 time before retries or network variance. The browser retains the batch only for the
 current session and can export the detailed results as CSV.
+
+## 2026-09-19 — Actionable per-label recovery
+
+The browser rejects non-JPEG/PNG files and originals over 10 MB before batch work
+begins, while retaining any valid files selected alongside them. A malformed or
+unparseable structured model response becomes a review result, never a pass or a
+crash. Claude rate limits receive up to three attempts with 250 ms then 500 ms delays;
+other provider failures remain isolated to their label and offer a per-row retry that
+does not restart the batch.

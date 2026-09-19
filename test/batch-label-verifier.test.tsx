@@ -1,10 +1,10 @@
 // @vitest-environment jsdom
 
 import "@testing-library/jest-dom/vitest";
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useState } from "react";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { BatchLabelVerifier } from "../components/batch-label-verifier";
 import type { BatchItem } from "../lib/batch";
@@ -20,6 +20,8 @@ function deferred<T>() {
 }
 
 describe("BatchLabelVerifier", () => {
+  afterEach(cleanup);
+
   it("renders a completed label while another label remains running", async () => {
     const user = userEvent.setup();
     const first = deferred<VerificationResponse>();
@@ -69,5 +71,32 @@ describe("BatchLabelVerifier", () => {
     expect(screen.getByText("Brand name differs.")).toBeInTheDocument();
     expect(screen.getByText("STONE'S THROW")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Export CSV" })).toBeEnabled();
+  });
+
+  it("retries only a failed label", async () => {
+    const user = userEvent.setup();
+    let rejectFirst: (error: Error) => void = () => {};
+    const firstAttempt = new Promise<VerificationResponse>((_, reject) => {
+      rejectFirst = reject;
+    });
+    const verify = vi
+      .fn()
+      .mockImplementationOnce(() => firstAttempt)
+      .mockResolvedValueOnce({ elapsedMs: 100, result: { overallStatus: "pass", fields: [] } });
+
+    function Harness() {
+      const [items, setItems] = useState<BatchItem<VerificationResponse>[]>([]);
+      return <BatchLabelVerifier application={SAMPLE_APPLICATION} items={items} onItemsChange={setItems} verify={verify} />;
+    }
+
+    render(<Harness />);
+    await user.upload(screen.getByLabelText("Choose label images"), new File(["one"], "retry.png", { type: "image/png" }));
+    await user.click(screen.getByRole("button", { name: "Verify labels" }));
+    rejectFirst(new Error("Try a clearer image."));
+    expect(await screen.findByText("failed")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Retry retry.png" }));
+    expect(await screen.findByText("done")).toBeInTheDocument();
+    expect(verify).toHaveBeenCalledTimes(2);
   });
 });
