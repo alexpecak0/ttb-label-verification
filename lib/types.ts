@@ -19,6 +19,15 @@ export interface WarningExtraction {
   remainderIsBold: ConfidentValue<boolean>;
 }
 
+export interface FieldConfidence {
+  brandName: number;
+  classType: number;
+  producerBottler: number;
+  countryOfOrigin: number;
+  abv: number;
+  netContents: number;
+}
+
 export interface LabelExtraction {
   brandName: string | null;
   classType: string | null;
@@ -26,6 +35,7 @@ export interface LabelExtraction {
   countryOfOrigin: string | null;
   abv: string | null;
   netContents: string | null;
+  fieldConfidence: FieldConfidence;
   governmentWarning: WarningExtraction;
 }
 

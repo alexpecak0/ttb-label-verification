@@ -22,6 +22,14 @@ function compliantLabel(): LabelExtraction {
     countryOfOrigin: null,
     abv: "45% Alc./Vol. (90 Proof)",
     netContents: "25.4 fl oz",
+    fieldConfidence: {
+      brandName: 0.99,
+      classType: 0.99,
+      producerBottler: 0.99,
+      countryOfOrigin: 0.99,
+      abv: 0.99,
+      netContents: 0.99,
+    },
     governmentWarning: {
       transcription: { value: GOVERNMENT_WARNING, confidence: 0.99 },
       prefixIsUppercase: { value: true, confidence: 0.99 },
