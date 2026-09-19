@@ -23,7 +23,7 @@ const standard = {
   classType: "Kentucky Straight Bourbon Whiskey",
   abv: "45% Alc./Vol. (90 Proof)",
   volume: "750 mL",
-  producer: "Bottled by Stone's Throw Distilling & Co.\nFrankfort, Kentucky",
+  producer: "Stone's Throw Distilling & Co., Frankfort, Kentucky",
   origin: "Product of the United States",
   warning: canonicalWarning,
 };

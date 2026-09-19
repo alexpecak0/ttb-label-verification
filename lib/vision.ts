@@ -144,6 +144,8 @@ export async function extractLabel(
   const response = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 1024,
+    system:
+      "You are a literal visual transcription system. Never autocorrect, infer, paraphrase, or normalize text. Preserve the exact visible letters, capitalization, punctuation, and numbering character by character. You report observations only and never decide legal compliance.",
     tools: [LABEL_EXTRACTION_TOOL],
     tool_choice: { type: "tool", name: LABEL_EXTRACTION_TOOL_NAME },
     messages: [
@@ -161,7 +163,7 @@ export async function extractLabel(
           {
             type: "text",
             text:
-              "Transcribe and observe this alcohol-label image. Preserve the warning wording, punctuation, and case exactly as printed. Independently observe whether the first two warning words are uppercase, whether those words are bold, and whether the rest of the warning appears bold. Use null when a value is not visible; do not assess legal compliance.",
+              "Transcribe and observe this alcohol-label image. The warning transcription must be a literal visual reading, including lower- versus uppercase letters and every punctuation mark; do not apply normal English capitalization. Independently observe whether the first two warning words are uppercase, whether those words are bold, and whether the rest of the warning appears bold. Use null when a value is not visible; do not assess legal compliance.",
           },
         ],
       },
