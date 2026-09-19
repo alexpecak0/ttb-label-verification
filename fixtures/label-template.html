@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>TTB label fixture</title>
+    <style>
+      :root {
+        --paper: #f4ead5;
+        --ink: #1a1815;
+        --accent: #8f2f22;
+      }
+
+      * { box-sizing: border-box; }
+      body {
+        align-items: center;
+        background: #a79f93;
+        display: flex;
+        font-family: Georgia, "Times New Roman", serif;
+        height: 1600px;
+        justify-content: center;
+        margin: 0;
+        overflow: hidden;
+        width: 1200px;
+      }
+      .label {
+        background: var(--paper);
+        border: 16px solid var(--ink);
+        box-shadow: inset 0 0 0 10px var(--paper), inset 0 0 0 13px var(--ink);
+        color: var(--ink);
+        height: 1420px;
+        padding: 94px 100px 72px;
+        position: relative;
+        width: 980px;
+      }
+      .label::before, .label::after {
+        background: var(--accent);
+        content: "";
+        height: 12px;
+        left: 100px;
+        position: absolute;
+        right: 100px;
+      }
+      .label::before { top: 56px; }
+      .label::after { bottom: 38px; }
+      .kicker { font-family: Arial, sans-serif; font-size: 24px; font-weight: 700; letter-spacing: .25em; margin: 24px 0 54px; text-align: center; }
+      h1 { font-size: 105px; letter-spacing: .035em; line-height: .9; margin: 0; text-align: center; text-transform: uppercase; }
+      .class-type { font-size: 44px; font-style: italic; margin: 34px 0 72px; text-align: center; }
+      .details { border-bottom: 2px solid var(--ink); border-top: 2px solid var(--ink); display: grid; font-family: Arial, sans-serif; font-size: 30px; gap: 18px; grid-template-columns: 1fr 1fr; padding: 32px 0; }
+      .producer { font-size: 28px; line-height: 1.3; margin: 50px 0 44px; text-align: center; }
+      .warning { border: 3px solid var(--ink); font-family: Arial, sans-serif; font-size: 23px; line-height: 1.34; margin-top: 52px; padding: 24px; }
+      .warning-prefix { font-weight: 700; }
+      .warning.all-bold { font-weight: 700; }
+      .warning.all-bold .warning-prefix { font-weight: inherit; }
+      .warning.missing { display: none; }
+      .glare { display: none; }
+      body.degraded .label { filter: contrast(.84) saturate(.72); transform: perspective(1200px) rotateY(-11deg) rotateZ(1.4deg); }
+      body.degraded .glare { background: linear-gradient(122deg, transparent 25%, rgba(255,255,255,.69) 47%, rgba(255,255,255,.1) 66%); display: block; inset: 0; pointer-events: none; position: absolute; }
+    </style>
+  </head>
+  <body>
+    <article class="label">
+      <div class="kicker">Small Batch American Spirits</div>
+      <h1 id="brand"></h1>
+      <div class="class-type" id="class-type"></div>
+      <div class="details">
+        <div id="abv"></div>
+        <div id="volume"></div>
+      </div>
+      <p class="producer" id="producer"></p>
+      <p class="producer" id="origin"></p>
+      <section class="warning" id="warning"><span class="warning-prefix" id="warning-prefix"></span><span id="warning-rest"></span></section>
+      <div class="glare"></div>
+    </article>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const setText = (id, value) => document.getElementById(id).textContent = value || "";
+      setText("brand", params.get("brand"));
+      setText("class-type", params.get("classType"));
+      setText("abv", params.get("abv"));
+      setText("volume", params.get("volume"));
+      setText("producer", params.get("producer"));
+      setText("origin", params.get("origin"));
+      const warning = params.get("warning") || "";
+      const prefix = warning.match(/^([^:]+:)/)?.[1] || "";
+      setText("warning-prefix", prefix);
+      setText("warning-rest", warning.slice(prefix.length));
+      const warningElement = document.getElementById("warning");
+      if (params.get("warningStyle") === "all-bold") warningElement.classList.add("all-bold");
+      if (params.get("warningStyle") === "missing") warningElement.classList.add("missing");
+      if (params.get("degraded") === "true") document.body.classList.add("degraded");
+    </script>
+  </body>
+</html>
