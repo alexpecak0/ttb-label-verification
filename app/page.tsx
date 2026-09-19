@@ -2,17 +2,28 @@ import { LabelVerificationApp } from "@/components/label-verification-app";
 
 export default function Home() {
   return (
-    <main className="aurora-page min-h-screen px-4 py-8 text-slate-950 sm:px-6 sm:py-12">
-      <div className="mx-auto max-w-6xl">
-        <header className="glass-panel max-w-3xl p-6 sm:p-8">
-          <h1 className="text-4xl font-bold tracking-tight">
-            TTB Label Verification
-          </h1>
-          <p className="mt-3 text-lg text-slate-800">
-            Compare alcohol-label images with submitted application details.
-          </p>
+    <main>
+      <div aria-hidden="true" className="scene">
+        <div className="orb o1" />
+        <div className="orb o2" />
+        <div className="orb o3" />
+        <div className="orb o4" />
+        <div className="shape s1" />
+        <div className="shape s2" />
+        <div className="shape s3" />
+        <div className="shape s4" />
+      </div>
+      <div className="wrap">
+        <header className="glass bar">
+          <div className="brand">
+            <span aria-hidden="true" className="seal">✓</span>
+            <div>
+              <h1>TTB Label Verification</h1>
+              <p>Compare alcohol-label images with submitted application details.</p>
+            </div>
+          </div>
         </header>
-        <div className="mt-8">
+        <div>
           <LabelVerificationApp />
         </div>
       </div>

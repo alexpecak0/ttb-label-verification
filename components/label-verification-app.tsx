@@ -51,19 +51,21 @@ export function LabelVerificationApp({
   }
 
   return (
-    <div className="grid gap-8">
+    <div className="cols">
       <ApplicationForm
         isLoadingSample={isLoadingSample}
         onChange={setApplication}
         onLoadSample={handleLoadSample}
         value={application}
       />
-      {sampleError ? <p role="alert">{sampleError}</p> : null}
-      <BatchLabelVerifier
-        application={application}
-        items={items}
-        onItemsChange={setItems}
-      />
+      <div>
+        {sampleError ? <p role="alert">{sampleError}</p> : null}
+        <BatchLabelVerifier
+          application={application}
+          items={items}
+          onItemsChange={setItems}
+        />
+      </div>
     </div>
   );
 }

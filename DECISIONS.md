@@ -101,3 +101,11 @@ verification/results container, leaving inputs, controls, and table rows opaque 
 to preserve contrast. It uses a 24px backdrop blur, white border, and inset highlight
 over a fixed multicolor gradient. Browsers without backdrop-filter and users who opt
 to reduce transparency receive solid, high-contrast panel backgrounds.
+
+## 2026-09-19 — Reference liquid-glass layout
+
+The app uses the supplied liquid-glass tokens and scene markup for its header and
+the two working panels only. Inputs, the upload area, and results rows retain
+opaque recessed-well styling, which preserves controls' contrast and avoids
+turning a long batch table into stacked glass layers. The application and verifier
+panels align in two columns at 900px and above and stack below that breakpoint.

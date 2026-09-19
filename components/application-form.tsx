@@ -38,18 +38,18 @@ export function ApplicationForm({
   }
 
   return (
-    <section aria-labelledby="application-details-heading" className="glass-panel p-6 sm:p-8">
-      <div className="flex items-center justify-between gap-4">
+    <section aria-labelledby="application-details-heading" className="glass panel">
+      <div className="panel-head flex items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold" id="application-details-heading">
+          <h2 id="application-details-heading">
             Application details
           </h2>
-          <p className="mt-1 text-slate-700">
+          <p className="hint">
             Enter the submitted application values to compare with the label.
           </p>
         </div>
         <button
-          className="rounded-xl border border-slate-700 bg-white/80 px-4 py-3 font-medium text-slate-950 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="btn"
           disabled={isLoadingSample}
           onClick={onLoadSample}
           type="button"
@@ -58,14 +58,14 @@ export function ApplicationForm({
         </button>
       </div>
 
-      <div className="mt-5 grid gap-4">
+      <div className="fields">
         {textFields.map((field) => (
-          <div key={field.key}>
-            <label className="block font-medium" htmlFor={field.key}>
+          <div className={`field${field.key === "producerBottler" ? " full" : ""}`} key={field.key}>
+            <label htmlFor={field.key}>
               {field.label}
             </label>
             <input
-              className="glass-input mt-1 w-full rounded-xl border px-3 py-3 text-slate-950"
+              className="input"
               id={field.key}
               onChange={(event) => updateTextField(field.key, event.target.value)}
               required={field.key === "countryOfOrigin" && value.isImported}
@@ -76,15 +76,17 @@ export function ApplicationForm({
         ))}
       </div>
 
-      <label className="mt-4 flex min-h-11 items-center gap-3 font-medium" htmlFor="is-imported">
-        <input
-          checked={value.isImported}
-          id="is-imported"
-          onChange={(event) => onChange({ ...value, isImported: event.target.checked })}
-          type="checkbox"
-        />
-        Imported product
-      </label>
+      <div className="field switch-field">
+        <label className="switch" htmlFor="is-imported">
+          <input
+            checked={value.isImported}
+            id="is-imported"
+            onChange={(event) => onChange({ ...value, isImported: event.target.checked })}
+            type="checkbox"
+          />
+          Imported product
+        </label>
+      </div>
     </section>
   );
 }

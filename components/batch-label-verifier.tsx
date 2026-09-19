@@ -124,17 +124,17 @@ export function BatchLabelVerifier({
   }
 
   return (
-    <section aria-labelledby="batch-verifier-heading" className="glass-panel p-6 sm:p-8">
-      <h2 className="text-xl font-semibold" id="batch-verifier-heading">
-        Verify labels
-      </h2>
-      <p className="mt-1 text-slate-700">
-        Add one or more JPEG or PNG label images, then verify them together.
-      </p>
+    <section aria-labelledby="batch-verifier-heading" className="glass panel">
+      <div className="panel-head">
+        <h2 id="batch-verifier-heading">Verify labels</h2>
+        <p className="hint">
+          Add one or more JPEG or PNG label images, then verify them together.
+        </p>
+      </div>
 
       <div
         aria-label="Drop label images here"
-        className="mt-4 rounded-xl border-2 border-dashed border-slate-500 bg-white/70 p-6 text-center"
+        className="drop"
         onDragOver={(event) => event.preventDefault()}
         onDrop={(event) => {
           event.preventDefault();
@@ -150,7 +150,7 @@ export function BatchLabelVerifier({
         tabIndex={0}
       >
         <p>Drop label images here</p>
-        <button className="mt-3 rounded-xl bg-slate-900 px-4 py-3 font-medium text-white hover:bg-slate-800" onClick={openFilePicker} type="button">
+        <button className="btn" onClick={openFilePicker} type="button">
           Choose label images
         </button>
         <label className="sr-only" htmlFor="label-images">Choose label images</label>
@@ -165,77 +165,79 @@ export function BatchLabelVerifier({
         />
       </div>
 
-      <p className="mt-3" aria-live="polite">
+      <p className="picked" aria-live="polite">
         {files.length === 0
           ? "No label images selected."
           : `${files.length} label image${files.length === 1 ? "" : "s"} selected.`}
       </p>
       {selectionError ? <p role="alert">{selectionError}</p> : null}
-      <button
-        className="mt-3 rounded-xl bg-blue-800 px-4 py-3 font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={files.length === 0 || isVerifying}
-        onClick={handleVerify}
-        type="button"
-      >
-        {isVerifying ? "Verifying labels…" : "Verify labels"}
-      </button>
-      <button
-        className="ml-3 rounded-xl border border-slate-700 bg-white/80 px-4 py-3 font-medium text-slate-950 hover:bg-white disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={!items.some((item) => item.progress === "done")}
-        onClick={handleExport}
-        type="button"
-      >
-        Export CSV
-      </button>
+      <div className="actions">
+        <button
+          className="btn btn-primary"
+          disabled={files.length === 0 || isVerifying}
+          onClick={handleVerify}
+          type="button"
+        >
+          {isVerifying ? "Verifying labels…" : "Verify labels"}
+        </button>
+        <button
+          className="btn"
+          disabled={!items.some((item) => item.progress === "done")}
+          onClick={handleExport}
+          type="button"
+        >
+          Export CSV
+        </button>
+      </div>
 
       {items.length > 0 ? (
-        <div className="mt-6 overflow-x-auto rounded-xl border border-white/70 bg-white/50">
-          <table className="w-full border-collapse text-left">
-            <caption className="mb-2 text-left font-semibold">Batch results</caption>
+        <div className="results-wrap">
+          <table className="results-table">
+            <caption className="results-head">Batch results</caption>
             <thead>
-              <tr className="border-b border-slate-400">
-                <th className="p-2">File</th>
-                <th className="p-2">Progress</th>
-                <th className="p-2">Overall status</th>
-                <th className="p-2">Elapsed</th>
-                <th className="p-2">Field</th>
-                <th className="p-2">Field status</th>
-                <th className="p-2">Reason</th>
-                <th className="p-2">Label value</th>
-                <th className="p-2">Application value</th>
+              <tr>
+                <th>File</th>
+                <th>Progress</th>
+                <th>Overall status</th>
+                <th>Elapsed</th>
+                <th>Field</th>
+                <th>Field status</th>
+                <th>Reason</th>
+                <th>Label value</th>
+                <th>Application value</th>
               </tr>
             </thead>
             <tbody>
               {items.flatMap((item) => {
                 const fields = item.result?.result.fields ?? [];
                 const firstRow = (
-                  <tr className="border-b border-slate-300" key={item.id}>
-                    <td className="p-2">{item.file.name}</td>
-                    <td className="p-2"><StatusBadge status={item.progress} /></td>
-                    <td className="p-2">{item.result ? <StatusBadge status={item.result.result.overallStatus} /> : "—"}</td>
-                    <td className="p-2">
+                  <tr className="row" key={item.id}>
+                    <td>{item.file.name}</td>
+                    <td><StatusBadge status={item.progress} /></td>
+                    <td>{item.result ? <StatusBadge status={item.result.result.overallStatus} /> : "—"}</td>
+                    <td>
                       {item.result
                         ? `${item.result.endToEndElapsedMs ?? item.result.elapsedMs} ms`
                         : "—"}
                     </td>
-                    <td className="p-2">{fields[0]?.field ?? "—"}</td>
-                    <td className="p-2">{fields[0] ? <StatusBadge status={fields[0].status} /> : "—"}</td>
-                    <td className="p-2">{fields[0]?.reason ?? item.error ?? "—"}</td>
-                    <td className="p-2">{displayValue(fields[0]?.labelValue ?? null)}</td>
-                    <td className="p-2">{displayValue(fields[0]?.applicationValue ?? null)}</td>
+                    <td>{fields[0]?.field ?? "—"}</td>
+                    <td>{fields[0] ? <StatusBadge status={fields[0].status} /> : "—"}</td>
+                    <td>{fields[0]?.reason ?? item.error ?? "—"}</td>
+                    <td>{displayValue(fields[0]?.labelValue ?? null)}</td>
+                    <td>{displayValue(fields[0]?.applicationValue ?? null)}</td>
                   </tr>
                 );
                 const remainingRows = fields.slice(1).map((field) => (
-                  <tr className="border-b border-slate-300" key={`${item.id}-${field.field}`}>
-                    <td className="p-2" />
-                    <td className="p-2" />
-                    <td className="p-2" />
-                    <td className="p-2" />
-                    <td className="p-2">{field.field}</td>
-                    <td className="p-2"><StatusBadge status={field.status} /></td>
-                    <td className="p-2">{field.reason}</td>
-                    <td className="p-2">{displayValue(field.labelValue)}</td>
-                    <td className="p-2">{displayValue(field.applicationValue)}</td>
+                  <tr className="row" key={`${item.id}-${field.field}`}>
+                    <td />
+                    <td />
+                    <td />
+                    <td />
+                    <td>{field.field}</td>
+                    <td><StatusBadge status={field.status} /></td>
+                    <td>{field.reason}</td>
+                    <td>{displayValue(field.labelValue)}</td>
+                    <td>{displayValue(field.applicationValue)}</td>
                   </tr>
                 ));
 
@@ -244,9 +246,9 @@ export function BatchLabelVerifier({
                   ...remainingRows,
                   ...(item.progress === "failed"
                     ? [
-                        <tr className="border-b border-slate-300" key={`${item.id}-retry`}>
-                          <td className="p-2" colSpan={9}>
-                            <button className="rounded-xl border border-slate-700 bg-white/80 px-4 py-3 font-medium text-slate-950 hover:bg-white" onClick={() => retryItem(item)} type="button">
+                        <tr className="row" key={`${item.id}-retry`}>
+                          <td colSpan={9}>
+                            <button className="btn" onClick={() => retryItem(item)} type="button">
                               Retry {item.file.name}
                             </button>
                           </td>
