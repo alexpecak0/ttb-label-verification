@@ -18,7 +18,10 @@ describe("verifyLabel", () => {
   it("posts the supplied application with the prepared image to the one-label route", async () => {
     vi.mocked(prepareImage).mockResolvedValue({
       base64: "prepared-image",
-      mediaType: "image/jpeg",
+      fileName: "label.png",
+      mimeType: "image/jpeg",
+      width: 1600,
+      height: 1200,
     });
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(
       new Response(
@@ -40,7 +43,13 @@ describe("verifyLabel", () => {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        image: { base64: "prepared-image", mediaType: "image/jpeg" },
+        image: {
+          base64: "prepared-image",
+          fileName: "label.png",
+          mimeType: "image/jpeg",
+          width: 1600,
+          height: 1200,
+        },
         application: SAMPLE_APPLICATION,
       }),
     });

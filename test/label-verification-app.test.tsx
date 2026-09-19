@@ -20,5 +20,6 @@ describe("LabelVerificationApp", () => {
     expect(await screen.findByDisplayValue("Stone's Throw")).toBeInTheDocument();
     expect(screen.getByDisplayValue("750 mL")).toBeInTheDocument();
     expect(screen.getByText("sample-label.png")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Verify labels" })).toBeEnabled();
   });
 });

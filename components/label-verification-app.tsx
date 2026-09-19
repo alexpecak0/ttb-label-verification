@@ -3,9 +3,12 @@
 import { useState } from "react";
 
 import { ApplicationForm } from "./application-form";
-import { SingleLabelVerifier } from "./single-label-verifier";
+import { BatchLabelVerifier } from "./batch-label-verifier";
+import { createBatchItems } from "../lib/batch";
+import type { BatchItem } from "../lib/batch";
 import { EMPTY_APPLICATION, SAMPLE_APPLICATION } from "../lib/sample-application";
 import type { ApplicationData } from "../lib/types";
+import type { VerificationResponse } from "../lib/verify-client";
 
 export type LoadSample = () => Promise<File>;
 
@@ -25,7 +28,7 @@ export function LabelVerificationApp({
   loadSample?: LoadSample;
 }) {
   const [application, setApplication] = useState<ApplicationData>(EMPTY_APPLICATION);
-  const [file, setFile] = useState<File | null>(null);
+  const [items, setItems] = useState<BatchItem<VerificationResponse>[]>([]);
   const [isLoadingSample, setIsLoadingSample] = useState(false);
   const [sampleError, setSampleError] = useState<string | null>(null);
 
@@ -35,7 +38,7 @@ export function LabelVerificationApp({
     try {
       const sampleFile = await loadSample();
       setApplication(SAMPLE_APPLICATION);
-      setFile(sampleFile);
+      setItems(createBatchItems<VerificationResponse>([sampleFile]));
     } catch (caughtError) {
       setSampleError(
         caughtError instanceof Error
@@ -56,10 +59,10 @@ export function LabelVerificationApp({
         value={application}
       />
       {sampleError ? <p role="alert">{sampleError}</p> : null}
-      <SingleLabelVerifier
+      <BatchLabelVerifier
         application={application}
-        file={file}
-        onFileChange={setFile}
+        items={items}
+        onItemsChange={setItems}
       />
     </div>
   );

@@ -3,6 +3,7 @@ import type { ApplicationData, LabelResult } from "./types";
 
 export interface VerificationResponse {
   elapsedMs: number;
+  endToEndElapsedMs?: number;
   result: LabelResult;
 }
 

@@ -5,9 +5,9 @@ import { describe, expect, it } from "vitest";
 import { runBatch } from "../lib/batch";
 
 describe("runBatch", () => {
-  it("never starts more than five labels at once", async () => {
+  it("processes 20 labels without starting more than five at once", async () => {
     const files = Array.from(
-      { length: 6 },
+      { length: 20 },
       (_, index) => new File(["image"], `label-${index}.png`, { type: "image/png" }),
     );
     const resolvers: Array<(value: string) => void> = [];
@@ -33,7 +33,9 @@ describe("runBatch", () => {
 
     expect(maximum).toBe(5);
     resolvers.forEach((resolve) => resolve("verified"));
-    await batch;
+    const results = await batch;
+
+    expect(results).toHaveLength(20);
   });
 
   it("records one failed label while other labels complete", async () => {

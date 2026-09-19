@@ -47,3 +47,13 @@ path: it fills the editable Stone's Throw application values and attaches the bu
 sample image before verification. Country of origin becomes a required browser field
 only when the user marks the product as imported; no beverage-type selector is
 included.
+
+## 2026-09-19 — Client-side batch execution
+
+Each label remains an independent browser-to-function request; the client starts no
+more than five at once and renders each row as it finishes. This keeps individual
+function calls within the Hobby timeout, isolates a failed label, and lets a reviewer
+act on completed results before the batch ends. At the measured 3.756-second median,
+300 labels form 60 groups of five and take approximately 3.8 minutes of wall-clock
+time before retries or network variance. The browser retains the batch only for the
+current session and can export the detailed results as CSV.
