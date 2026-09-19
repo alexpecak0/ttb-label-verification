@@ -100,6 +100,9 @@ that spec.
 - Large batches can encounter Anthropic rate limits. The server retries HTTP 429 twice
   after 250 ms and 500 ms (three total attempts); other extraction failures are
   isolated to that label and exposed for per-label retry.
+- Vercel Firewall limits `/api/verify` to 100 requests per client IP per 60 seconds
+  and denies further requests from that IP for one minute. This protects the paid
+  prototype endpoint from single-source abuse; it is not a distributed-attack defense.
 - Inference runs server-side. Reviewers' browsers need to reach this app's domain, not
   Anthropic directly. A production deployment would require an approved, authorized
   inference endpoint.
