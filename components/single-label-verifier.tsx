@@ -10,6 +10,10 @@ export interface VerificationResponse {
   result: LabelResult;
 }
 
+interface DisplayedVerificationResponse extends VerificationResponse {
+  endToEndElapsedMs: number;
+}
+
 export type VerifyLabel = (file: File) => Promise<VerificationResponse>;
 
 const SAMPLE_APPLICATION: ApplicationData = {
@@ -51,7 +55,7 @@ export function SingleLabelVerifier({
   verify?: VerifyLabel;
 }) {
   const [file, setFile] = useState<File | null>(null);
-  const [response, setResponse] = useState<VerificationResponse | null>(null);
+  const [response, setResponse] = useState<DisplayedVerificationResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
 
@@ -64,7 +68,12 @@ export function SingleLabelVerifier({
     setError(null);
     setResponse(null);
     try {
-      setResponse(await verify(file));
+      const startedAt = performance.now();
+      const output = await verify(file);
+      setResponse({
+        ...output,
+        endToEndElapsedMs: Math.round(performance.now() - startedAt),
+      });
     } catch (caughtError) {
       setError(
         caughtError instanceof Error

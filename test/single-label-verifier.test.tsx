@@ -24,5 +24,6 @@ describe("SingleLabelVerifier", () => {
     await user.click(screen.getByRole("button", { name: "Verify label" }));
 
     expect(await screen.findByText(/"overallStatus": "pass"/)).toBeInTheDocument();
+    expect(screen.getByText(/"endToEndElapsedMs": \d+/)).toBeInTheDocument();
   });
 });
